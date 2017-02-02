@@ -7,7 +7,7 @@ This is a specification.  SDKs and reference implementations will be published i
 
 ## Dependencies
 
-The source of the specification is in the xml format used by, and the html generated with [xml2frc](https://xml2rfc.tools.ietf.org/)
+The source of the specification is in the xml format used by, and the html generated with [xml2rfc](https://xml2rfc.tools.ietf.org/)
 
 ## Join the community
 See the CONTRIBUTING file for how to help out.
