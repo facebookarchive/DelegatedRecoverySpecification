@@ -10,7 +10,6 @@
 <!ENTITY rfc5849 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5849.xml">
 <!ENTITY rfc6454 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6454.xml">
 <!ENTITY rfc6962 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6962.xml">
-<!ENTITY rfc6979 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6979.xml">
 <!ENTITY rfc7034 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7034.xml">
 <!ENTITY rfc7469 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7469.xml">
 <!ENTITY iso.8601.1988 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml2/reference.ISO.8601.1988.xml">
@@ -38,8 +37,8 @@
       </address>
     </author>
     <date year="2017"
-          month="January"
-          day="24" />
+          month="April"
+          day="12" />
     <workgroup>Facebook, Inc.</workgroup>
     <abstract>
       <t>Delegated Account Recovery allows an application to delegate the
@@ -1360,12 +1359,9 @@ token_internals = struct {
           key corresponding to the public key for the Recovery Provider
           currently published as part of its configuration.</t>
           <t>For this version (0) of the protocol, this is ECDSA over the
-          SHA256 hash of the token_internals octet string, represented as a
-          64 octet sequence, composed of two 32 octet sequences. The first
-          octet sequence represents R and the second S. The values R and S
-          are represented as octet sequences using the Inter-to-OctetString
-          Conversion defined in Section 2.3.7 of SEC1
-          <xref target="SEC1"></xref>(in big endian octet order).</t>
+          SHA256 hash of the token_internals octet string.  The signature
+          is encoded as DER-encoded ASN.1 structure (a SEQUENCE
+          of two INTEGERs, for r and s, in that order).</t>
         </section>
         <!-- Signature -->
       </section>
@@ -1458,11 +1454,8 @@ countersigned_token_internals = struct {
           its configuration.</t>
           <t>For this version of the protocol (0), the algorithm is ECDSA
           over the SHA256 hash of the countersigned_token_internals octet
-          string, and represented as a 64 octet sequence, composed of two 32
-          octet sequences. The first octet sequence represents R and the
-          second S. The values R and S are represented as octet sequences
-          using the Inter-to-OctetString Conversion defined in Section 2.3.7
-          of SEC1 [SEC1] (in big endian octet order).</t>
+          string. The signature is encoded as DER-encoded ASN.1 structure
+          (a SEQUENCE of two INTEGERs, for r and s, in that order)</t>
         </section>
         <!-- Counter-Signed Recovery Token Signature -->
       </section>
@@ -1716,19 +1709,7 @@ countersigned_token_internals = struct {
   <back>
     <references title="Normative References">&rfc2119;
     &rfc3339; &rfc3629; &rfc3986; &rfc5246; &rfc5480;
-    &rfc5849; &rfc6454; &rfc6962; &rfc6979; &rfc7034; &rfc7469; &iso.8601.1988;
-    <reference anchor="SEC1"
-               target="http://www.secg.org/collateral/sec1_final.pdf">
-      <front>
-        <title>SEC 1: Elliptic Curve Cryptography</title>
-        <author>
-          <organization>Certicom Research</organization>
-        </author>
-        <date day="20"
-              month="September"
-              year="2000" />
-      </front>
-    </reference>
+    &rfc5849; &rfc6454; &rfc6962; &rfc7034; &rfc7469; &iso.8601.1988;
     <reference anchor="X9.62">
       <front>
         <title>ANS X9.62-2005: The Elliptic Curve Digital Signature Algorithm

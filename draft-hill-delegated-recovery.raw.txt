@@ -4,7 +4,7 @@
 
 Facebook, Inc.                                              B. Hill, Ed.
 Unofficial Draft                                          Facebook, Inc.
-                                                        January 24, 2017
+                                                          April 12, 2017
 Expires: July 28, 2017
 
 
@@ -20,11 +20,11 @@ Abstract
 
 Status of This Memo
 
-   This Unofficial Draft will expire on July 28, 2017.
+   This Unofficial Draft will expire on October 12, 2017.
 
 Copyright Notice
 
-   Copyright (c) 2017 Facebook, Inc. and the persons identified as the
+   Copyright (c) 2016-2017 Facebook, Inc. and the persons identified as the
    document authors and published under the Creative Commons Attribution
    4.0 International license.
 
@@ -1507,12 +1507,9 @@ Table of Contents
    published as part of its configuration.
 
    For this version (0) of the protocol, this is ECDSA over the SHA256
-   hash of the token_internals octet string, represented as a 64 octet
-   sequence, composed of two 32 octet sequences.  The first octet
-   sequence represents R and the second S.  The values R and S are
-   represented as octet sequences using the Inter-to-OctetString
-   Conversion defined in Section 2.3.7 of SEC1 [SEC1](in big endian
-   octet order).
+   hash of the token_internals octet string.  The signature is encoded
+   as DER-encoded ASN.1 structure (a SEQUENCE of two INTEGERs, for r and
+   s, in that order).
 
 4.2.  Counter-Signed Recovery Token
 
@@ -1607,12 +1604,9 @@ Table of Contents
    configuration.
 
    For this version of the protocol (0), the algorithm is ECDSA over the
-   SHA256 hash of the countersigned_token_internals octet string, and
-   represented as a 64 octet sequence, composed of two 32 octet
-   sequences.  The first octet sequence represents R and the second S.
-   The values R and S are represented as octet sequences using the
-   Inter-to-OctetString Conversion defined in Section 2.3.7 of SEC1
-   [SEC1] (in big endian octet order).
+   SHA256 hash of the countersigned_token_internals octet string.  The
+   signature is encoded as DER-encoded ASN.1 structure (a SEQUENCE of
+   two INTEGERs, for r and s, in that order)
 
 5.  Use in Key Recovery
 
@@ -1900,11 +1894,6 @@ Table of Contents
               Transparency", RFC 6962, DOI 10.17487/RFC6962, June 2013,
               <http://www.rfc-editor.org/info/rfc6962>.
 
-   [RFC6979]  Pornin, T., "Deterministic Usage of the Digital Signature
-              Algorithm (DSA) and Elliptic Curve Digital Signature
-              Algorithm (ECDSA)", RFC 6979, DOI 10.17487/RFC6979, August
-              2013, <http://www.rfc-editor.org/info/rfc6979>.
-
    [RFC7034]  Ross, D. and T. Gondrom, "HTTP Header Field X-Frame-
               Options", RFC 7034, DOI 10.17487/RFC7034, October 2013,
               <http://www.rfc-editor.org/info/rfc7034>.
@@ -1918,10 +1907,6 @@ Table of Contents
               elements and interchange formats - Information interchange
               - Representation of dates and times", ISO Standard 8601,
               June 1988.
-
-   [SEC1]     Certicom Research, "SEC 1: Elliptic Curve Cryptography",
-              September 2000,
-              <http://www.secg.org/collateral/sec1_final.pdf>.
 
    [X9.62]    American National Standards Institute (ANSI), "ANS
               X9.62-2005: The Elliptic Curve Digital Signature Algorithm

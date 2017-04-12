@@ -458,10 +458,10 @@
 </tr>
 <tr>
   <td class="left"></td>
-  <td class="right">January 24, 2017</td>
+  <td class="right">April 12, 2017</td>
 </tr>
 <tr>
-  <td class="left">Expires: July 28, 2017</td>
+  <td class="left">Expires: October 12, 2017</td>
   <td class="right"></td>
 </tr>
 
@@ -479,11 +479,11 @@
 <h1 id="rfc.status">
   <a href="#rfc.status">Status of This Memo</a>
 </h1>
-<p>This Unofficial Draft will expire on July 28, 2017.</p>
+<p>This Unofficial Draft will expire on October 12, 2017.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
-<p>Copyright (c) 2017 Facebook, Inc. and the persons identified as the document authors and
+<p>Copyright (c) 2016-2017 Facebook, Inc. and the persons identified as the document authors and
 published under the Creative Commons Attribution 4.0 International license.</p>
   
   <hr class="noprint" />
@@ -1146,7 +1146,7 @@ token_internals = struct {
 <p id="rfc.section.4.1.2.p.5">A recovery token may still be usable even if an attacker obtains the key used to encrypt the opaque data, (though user privacy may be compromised) but if the Account Provider loses this key (and the ability to decrypt the token data) the account recovery capability will be lost.</p>
 <h1 id="rfc.section.4.1.3"><a href="#rfc.section.4.1.3">4.1.3.</a> Signature</h1>
 <p id="rfc.section.4.1.3.p.1">token_signature is a signature over the token_internals octet string as defined according to the version field, with the private key corresponding to the public key for the Recovery Provider currently published as part of its configuration.</p>
-<p id="rfc.section.4.1.3.p.2">For this version (0) of the protocol, this is ECDSA over the SHA256 hash of the token_internals octet string, represented as a 64 octet sequence, composed of two 32 octet sequences. The first octet sequence represents R and the second S. The values R and S are represented as octet sequences using the Inter-to-OctetString Conversion defined in Section 2.3.7 of SEC1 <a href="#SEC1">[SEC1]</a>(in big endian octet order).</p>
+<p id="rfc.section.4.1.3.p.2">For this version (0) of the protocol, this is ECDSA over the SHA256 hash of the token_internals octet string.  The signature is encoded as DER-encoded ASN.1 structure (a SEQUENCE of two INTEGERs, for r and s, in that order).</p>
 <h1 id="rfc.section.4.2"><a href="#rfc.section.4.2">4.2.</a> Counter-Signed Recovery Token</h1>
 <p id="rfc.section.4.2.p.1">A Counter-Signed Recovery Token is a credential representing the Recovery Provider's re-authentication of the account holder who originally saved the Recovery Token it contains. It is defined as:</p>
 <p id="rfc.section.4.2.p.2">token = base64(countersigned_token_internals || countersigned_token_signature)</p>
@@ -1209,7 +1209,7 @@ countersigned_token_internals = struct {
 <p> </p>
 <h1 id="rfc.section.4.2.2"><a href="#rfc.section.4.2.2">4.2.2.</a> Counter-Signed Recovery Token Signature</h1>
 <p id="rfc.section.4.2.2.p.1">countersigned_token_signature is a signature over the countersigned_token_internals octet string as defined according to the algorithm field, with the private key corresponding to the public key for the Recovery Provider currently published as part of its configuration.</p>
-<p id="rfc.section.4.2.2.p.2">For this version of the protocol (0), the algorithm is ECDSA over the SHA256 hash of the countersigned_token_internals octet string, and represented as a 64 octet sequence, composed of two 32 octet sequences. The first octet sequence represents R and the second S. The values R and S are represented as octet sequences using the Inter-to-OctetString Conversion defined in Section 2.3.7 of SEC1 [SEC1] (in big endian octet order).</p>
+<p id="rfc.section.4.2.2.p.2">For this version of the protocol (0), the algorithm is ECDSA over the SHA256 hash of the countersigned_token_internals octet string. The signature is encoded as DER-encoded ASN.1 structure (a SEQUENCE of two INTEGERs, for r and s, in that order)</p>
 <h1 id="rfc.section.5"><a href="#rfc.section.5">5.</a> Use in Key Recovery</h1>
 <p id="rfc.section.5.p.1">This protocol, in addition to allowing recovery of accounts in a delegated fashion, may be used to recover other capabilities, like a recovery key for encrypted email or files. For example, the provider of a an encryption service might use a threshold cryptosystem to break a key into several parts, and ask the user to store the pieces (encoded in the opaque data field) as account recovery tokens at several providers. If the user loses their own copy of the key, they can still recover it, but the backup is not subject to server-side compromise by any single entity.</p>
 <h1 id="rfc.section.6"><a href="#rfc.section.6">6.</a> Security Considerations</h1>
@@ -1321,12 +1321,6 @@ countersigned_token_internals = struct {
     </tr>
     <tr>
       <td class="reference">
-        <b id="RFC6979">[RFC6979]</b>
-      </td>
-      <td class="top"><a>Pornin, T.</a>, "<a href="http://tools.ietf.org/html/rfc6979">Deterministic Usage of the Digital Signature Algorithm (DSA) and Elliptic Curve Digital Signature Algorithm (ECDSA)</a>", RFC 6979, DOI 10.17487/RFC6979, August 2013.</td>
-    </tr>
-    <tr>
-      <td class="reference">
         <b id="RFC7034">[RFC7034]</b>
       </td>
       <td class="top"><a>Ross, D.</a> and <a>T. Gondrom</a>, "<a href="http://tools.ietf.org/html/rfc7034">HTTP Header Field X-Frame-Options</a>", RFC 7034, DOI 10.17487/RFC7034, October 2013.</td>
@@ -1342,12 +1336,6 @@ countersigned_token_internals = struct {
         <b id="ISO.8601.1988">[ISO.8601.1988]</b>
       </td>
       <td class="top"><a>International Organization for Standardization</a>, "<a>Data elements and interchange formats - Information interchange - Representation of dates and times</a>", ISO Standard 8601, June 1988.</td>
-    </tr>
-    <tr>
-      <td class="reference">
-        <b id="SEC1">[SEC1]</b>
-      </td>
-      <td class="top"><a>Certicom Research</a>, "<a href="http://www.secg.org/collateral/sec1_final.pdf">SEC 1: Elliptic Curve Cryptography</a>", September 2000.</td>
     </tr>
     <tr>
       <td class="reference">
