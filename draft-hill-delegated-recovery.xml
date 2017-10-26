@@ -37,8 +37,8 @@
       </address>
     </author>
     <date year="2017"
-          month="April"
-          day="12" />
+          month="October"
+          day="26" />
     <workgroup>Facebook, Inc.</workgroup>
     <abstract>
       <t>Delegated Account Recovery allows an application to delegate the
@@ -1297,9 +1297,24 @@ token_internals = struct {
               rotations of those keys have occurred since the token was
               originally issued.</t>
               <t hangText="options">
-              <vspace />MUST be 0 if the Account Provider does not want
-              status callbacks or 1 to request the Recovery Provider to make
-              status callbacks, if supported.</t>
+              <list style="hanging"
+                    hangIndent="4">
+                <t hangText="Token options bit flags" />
+                <t hangText="0x01: Status Requested">
+                  <vspace />
+                  Set bit 0 to request the Recovery Provider make
+                  status callbacks, if supported.</t>
+                <t hangText="0x02: Low Friction Requested">
+                  <vspace />
+                  Set bit 1 to request the Recovery Provider apply
+                  lower friction verification during recovery, if supported.
+                </t>
+                <t hangText="0x04, 0x08, 0x10, 0x20, 0x40, 0x80:">
+                  <vspace />
+                  RESERVED
+                </t>
+              </list>
+              </t>
               <t hangText="issuer_length">
               <vspace />Length of the issuer field.</t>
               <t hangText="issuer">
@@ -1412,7 +1427,26 @@ countersigned_token_internals = struct {
               <vspace />Token identifier. This SHOULD contain at least 96 bits
               of entropy.</t>
               <t hangText="options">
-              <vspace />Reserved. MUST be 0</t>
+              <list style="hanging"
+                    hangIndent="4">
+                <t hangText="Token options bit flags" />
+                <t hangText="0x01: Status Requested">
+                  <vspace />
+                  Bit 0 must not be set in Countersigned Recovery Tokens.</t>
+                <t hangText="0x02: Low Friction Applied">
+                  <vspace />
+                  Set bit 1 to indicate to the Account Provider that
+                  the account holder was re-authenticated with low
+                  assurance, either because the inner Recovery Token
+                  requested low friction or because stronger challenges
+                  were not available.
+                </t>
+                <t hangText="0x04, 0x08, 0x10, 0x20, 0x40, 0x80:">
+                  <vspace />
+                  RESERVED
+                </t>
+              </list>
+              </t>
               <t hangText="issuer_length">
               <vspace />Length of the issuer field.</t>
               <t hangText="issuer">
@@ -1552,6 +1586,36 @@ countersigned_token_internals = struct {
         <!-- At the Account Provider -->
       </section>
       <!-- Additional Verification -->
+      <section title="Low Friction Tokens and Delegated Multi-Factor Authentication">
+        <t>Generally, recovering an account is a high-security event, and
+        a key advantage of this protocol is that it identifies recoveries
+        explicitly, so they may have appropriate re-authentication and
+        rate limiting applied by a Recovery Provider.</t>
+        <t>However, the ability to anonymously attest continuity of control of
+        an account at an external source has other uses beyond recovering account
+        using this protocol as the sole source of evidence.</t>
+        <t>If an Account Provider sets the "Low Friction" bit in the token
+        options bitflag, it is indicating to the Recovery Provider that the
+        token will not be treated as a single authentication factor, and so request
+        that ease of use in "recovery" be prioritized over additional security measures
+        or strict rate limting.  In this mode, the protcol may be used as a generalized
+        part of a multi-factor authentication solution, replacing solutions like one-time
+        passwords with a decentralized mesh of user accounts.</t>
+        <t>When a Recovery Provider receives a token with the Low Friction flag set, it
+        SHOULD adjust rate limts and re-authentication strategies to prioritize user success
+        and ease of use above the level of authentication assurance.  It SHOULD then set the
+        same flag in the Countersigned Token it issues.</t>
+        <t>Additionally, a Recovery Provider MAY use the Low Friction flag in a Countersigned
+        Token to indicate to an Account Provider that, despite best efforts for a Recovery Token
+        where the Low Friction flag was not set, a strong level of authentication assurance was
+        not possible.  It is at the discretion of the Recovery Provider exactly what
+        this means, but suggested that this flag be set when the level of authentication possible
+        was no stronger than username/password.  This SHOULD only be used when
+        stronger challenges are not available due to the configuration of the account at the
+        Recovery Provider.  If a strong authentication challenge was available but could not be
+        completed, the Recovery Provider should not issue a Countersigned Token.</t>
+      </section>
+      <!-- Low Friction Tokens -->
       <section title="Cross-Site Request Forgery">
         <t>Many web application endpoints require an unforgeable token be
         sent as part of any HTTP POST to prevent Cross-Site Request Forgery
