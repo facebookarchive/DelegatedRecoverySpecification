@@ -3,9 +3,9 @@
 
 
 Facebook, Inc.                                              B. Hill, Ed.
-Unofficial Draft                                          Facebook, Inc.
-                                                          April 12, 2017
-Expires: July 28, 2017
+Unofficial Draft                                            Facebook, Inc.
+                                                            October 26, 2017
+Expires: April 29, 2018
 
 
                        Delegated Account Recovery
@@ -20,13 +20,13 @@ Abstract
 
 Status of This Memo
 
-   This Unofficial Draft will expire on October 12, 2017.
+   This Unofficial Draft will expire on April 29, 2018.
 
 Copyright Notice
 
-   Copyright (c) 2016-2017 Facebook, Inc. and the persons identified as the
-   document authors and published under the Creative Commons Attribution
-   4.0 International license.
+   Copyright (c) 2016-2017 Facebook, Inc. and the persons identified as
+   the document authors and published under the Creative Commons 
+   Attribution 4.0 International license.
 
 Table of Contents
 
@@ -75,17 +75,20 @@ Table of Contents
      6.3.  Additional Verification
        6.3.1.  At the Recovery Provider
        6.3.2.  At the Account Provider
-     6.4.  Cross-Site Request Forgery
-     6.5.  Breach Detection
-     6.6.  Clock Skew
-     6.7.  Key Loss and Compromise
-     6.8.  TLS or HTTPS Certificate Compromise
-     6.9.  Token Leakage
+     6.4.  Low Friction Tokens and Delegated Multi-Factor
+           Authentication
+     6.5.  Cross-Site Request Forgery
+     6.6.  Breach Detection
+     6.7.  Clock Skew
+     6.8.  Key Loss and Compromise
+     6.9.  TLS or HTTPS Certificate Compromise
+     6.10. Token Leakage
    7.  Implementation Notes
    8.  IANA Considerations
    9.  Acknowledgements
    10. Normative References
    Appendix A.  Initial Algorithm Registry Contents
+   Author's Address
 
 1.  Introduction
 
@@ -1436,9 +1439,19 @@ Table of Contents
        originally issued.
 
    options
-       MUST be 0 if the Account Provider does not want status callbacks
-       or 1 to request the Recovery Provider to make status callbacks,
-       if supported.
+
+       Token options bit flags
+
+       0x01: Status Requested
+           Set bit 0 to request the Recovery Provider make status
+           callbacks, if supported.
+
+       0x02: Low Friction Requested
+           Set bit 1 to request the Recovery Provider apply lower
+           friction verification during recovery, if supported.
+
+       0x04, 0x08, 0x10, 0x20, 0x40, 0x80:
+           RESERVED
 
    issuer_length
        Length of the issuer field.
@@ -1557,7 +1570,20 @@ Table of Contents
        entropy.
 
    options
-       Reserved.  MUST be 0
+
+       Token options bit flags
+
+       0x01: Status Requested
+           Bit 0 must not be set in Countersigned Recovery Tokens.
+
+       0x02: Low Friction Applied
+           Set bit 1 to indicate to the Account Provider that the
+           account holder was re-authenticated with low assurance,
+           either because the inner Recovery Token requested low
+           friction or because stronger challenges were not available.
+
+       0x04, 0x08, 0x10, 0x20, 0x40, 0x80:
+           RESERVED
 
    issuer_length
        Length of the issuer field.
@@ -1701,7 +1727,46 @@ Table of Contents
    recovery tokens that may have been issued during the compromise
    period.
 
-6.4.  Cross-Site Request Forgery
+6.4.  Low Friction Tokens and Delegated Multi-Factor Authentication
+
+   Generally, recovering an account is a high-security event, and a key
+   advantage of this protocol is that it identifies recoveries
+   explicitly, so they may have appropriate re-authentication and rate
+   limiting applied by a Recovery Provider.
+
+   However, the ability to anonymously attest continuity of control of
+   an account at an external source has other uses beyond recovering
+   account using this protocol as the sole source of evidence.
+
+   If an Account Provider sets the "Low Friction" bit in the token
+   options bitflag, it is indicating to the Recovery Provider that the
+   token will not be treated as a single authentication factor, and so
+   request that ease of use in "recovery" be prioritized over additional
+   security measures or strict rate limting.  In this mode, the protcol
+   may be used as a generalized part of a multi-factor authentication
+   solution, replacing solutions like one-time passwords with a
+   decentralized mesh of user accounts.
+
+   When a Recovery Provider receives a token with the Low Friction flag
+   set, it SHOULD adjust rate limts and re-authentication strategies to
+   prioritize user success and ease of use above the level of
+   authentication assurance.  It SHOULD then set the same flag in the
+   Countersigned Token it issues.
+
+   Additionally, a Recovery Provider MAY use the Low Friction flag in a
+   Countersigned Token to indicate to an Account Provider that, despite
+   best efforts for a Recovery Token where the Low Friction flag was not
+   set, a strong level of authentication assurance was not possible.  It
+   is at the discretion of the Recovery Provider exactly what this
+   means, but suggested that this flag be set when the level of
+   authentication possible was no stronger than username/password.  This
+   SHOULD only be used when stronger challenges are not available due to
+   the configuration of the account at the Recovery Provider.  If a
+   strong authentication challenge was available but could not be
+   completed, the Recovery Provider should not issue a Countersigned
+   Token.
+
+6.5.  Cross-Site Request Forgery
 
    Many web application endpoints require an unforgeable token be sent
    as part of any HTTP POST to prevent Cross-Site Request Forgery (CSRF)
@@ -1725,7 +1790,7 @@ Table of Contents
    require unforgeable user consent or block entirely the delegation of
    tokens to low-reputation Recovery Providers.
 
-6.5.  Breach Detection
+6.6.  Breach Detection
 
    Participants should monitor rates at which recovery capabilities are
    exercised and rates at which users report unauthorized exercising of
@@ -1737,7 +1802,7 @@ Table of Contents
    should also be performed to prevent disclosed tokens from being re-
    associated to new accounts at a Recovery Provider.
 
-6.6.  Clock Skew
+6.7.  Clock Skew
 
    This protocol relies on comparison of timestamps from different
    network servers as a defense-in-depth measure to prevent re-use of
@@ -1752,7 +1817,7 @@ Table of Contents
    with standardized Internet time sources.  The specifics of such
    mechanisms are beyond the scope of this document.
 
-6.7.  Key Loss and Compromise
+6.8.  Key Loss and Compromise
 
    This protocol involves three keys: the public/private key pairs of
    the Account and Recovery Providers, and whatever key the Account
@@ -1800,7 +1865,7 @@ Table of Contents
    If an Account Provider loses its data encryption keys, tokens issued
    under those keys will be unusable.
 
-6.8.  TLS or HTTPS Certificate Compromise
+6.9.  TLS or HTTPS Certificate Compromise
 
    This protocol depends on TLS, HTTPS and the Web PKI to bootstrap its
    self-organizing trust framework using HTTPS to distribute keys.
@@ -1819,7 +1884,7 @@ Table of Contents
    connections that are beyond the scope of this document, such as HTTP
    Public Key Pinning [RFC7469] and Certificate Transparency.  [RFC6962]
 
-6.9.  Token Leakage
+6.10.  Token Leakage
 
    It may be possible that recovery tokens leak to third parties.  Use
    of the POST method and endpoints which are either well-known or
@@ -1864,49 +1929,59 @@ Table of Contents
 
 10.  Normative References
 
-   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
-              Requirement Levels", BCP 14, RFC 2119, March 1997.
-
-   [RFC3339]  Klyne, G., Ed. and C. Newman, "Date and Time on the
-              Internet: Timestamps", RFC 3339, July 2002.
-
-   [RFC3629]  Yergeau, F., "UTF-8, a transformation format of ISO
-              10646", STD 63, RFC 3629, November 2003.
-
-   [RFC3986]  Berners-Lee, T., Fielding, R., and L. Masinter, "Uniform
-              Resource Identifier (URI): Generic Syntax", STD 66, RFC
-              3986, January 2005.
-
-   [RFC5246]  Dierks, T. and E. Rescorla, "The Transport Layer Security
-              (TLS) Protocol Version 1.2", RFC 5246, August 2008.
-
-   [RFC5480]  Turner, S., Brown, D., Yiu, K., Housley, R., and T. Polk,
-              "Elliptic Curve Cryptography Subject Public Key
-              Information", RFC 5480, March 2009.
-
-   [RFC5849]  Hammer-Lahav, E., "The OAuth 1.0 Protocol", RFC 5849,
-              April 2010.
-
-   [RFC6454]  Barth, A., "The Web Origin Concept", RFC 6454, December
-              2011.
-
-   [RFC6962]  Laurie, B., Langley, A., and E. Kasper, "Certificate
-              Transparency", RFC 6962, DOI 10.17487/RFC6962, June 2013,
-              <http://www.rfc-editor.org/info/rfc6962>.
-
-   [RFC7034]  Ross, D. and T. Gondrom, "HTTP Header Field X-Frame-
-              Options", RFC 7034, DOI 10.17487/RFC7034, October 2013,
-              <http://www.rfc-editor.org/info/rfc7034>.
-
-   [RFC7469]  Evans, C., Palmer, C., and R. Sleevi, "Public Key Pinning
-              Extension for HTTP", RFC 7469, DOI 10.17487/RFC7469, April
-              2015, <http://www.rfc-editor.org/info/rfc7469>.
-
    [ISO.8601.1988]
               International Organization for Standardization, "Data
               elements and interchange formats - Information interchange
               - Representation of dates and times", ISO Standard 8601,
               June 1988.
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/info/rfc2119>.
+
+   [RFC3339]  Klyne, G. and C. Newman, "Date and Time on the Internet:
+              Timestamps", RFC 3339, DOI 10.17487/RFC3339, July 2002,
+              <https://www.rfc-editor.org/info/rfc3339>.
+
+   [RFC3629]  Yergeau, F., "UTF-8, a transformation format of ISO
+              10646", STD 63, RFC 3629, DOI 10.17487/RFC3629, November
+              2003, <https://www.rfc-editor.org/info/rfc3629>.
+
+   [RFC3986]  Berners-Lee, T., Fielding, R., and L. Masinter, "Uniform
+              Resource Identifier (URI): Generic Syntax", STD 66,
+              RFC 3986, DOI 10.17487/RFC3986, January 2005,
+              <https://www.rfc-editor.org/info/rfc3986>.
+
+   [RFC5246]  Dierks, T. and E. Rescorla, "The Transport Layer Security
+              (TLS) Protocol Version 1.2", RFC 5246,
+              DOI 10.17487/RFC5246, August 2008,
+              <https://www.rfc-editor.org/info/rfc5246>.
+
+   [RFC5480]  Turner, S., Brown, D., Yiu, K., Housley, R., and T. Polk,
+              "Elliptic Curve Cryptography Subject Public Key
+              Information", RFC 5480, DOI 10.17487/RFC5480, March 2009,
+              <https://www.rfc-editor.org/info/rfc5480>.
+
+   [RFC5849]  Hammer-Lahav, E., Ed., "The OAuth 1.0 Protocol", RFC 5849,
+              DOI 10.17487/RFC5849, April 2010,
+              <https://www.rfc-editor.org/info/rfc5849>.
+
+   [RFC6454]  Barth, A., "The Web Origin Concept", RFC 6454,
+              DOI 10.17487/RFC6454, December 2011,
+              <https://www.rfc-editor.org/info/rfc6454>.
+
+   [RFC6962]  Laurie, B., Langley, A., and E. Kasper, "Certificate
+              Transparency", RFC 6962, DOI 10.17487/RFC6962, June 2013,
+              <https://www.rfc-editor.org/info/rfc6962>.
+
+   [RFC7034]  Ross, D. and T. Gondrom, "HTTP Header Field X-Frame-
+              Options", RFC 7034, DOI 10.17487/RFC7034, October 2013,
+              <https://www.rfc-editor.org/info/rfc7034>.
+
+   [RFC7469]  Evans, C., Palmer, C., and R. Sleevi, "Public Key Pinning
+              Extension for HTTP", RFC 7469, DOI 10.17487/RFC7469, April
+              2015, <https://www.rfc-editor.org/info/rfc7469>.
 
    [X9.62]    American National Standards Institute (ANSI), "ANS
               X9.62-2005: The Elliptic Curve Digital Signature Algorithm
